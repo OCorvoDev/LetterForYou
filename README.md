@@ -89,14 +89,14 @@ Uma carta de amor em arte ASCII com selo de cera que pega fogo de forma orgânic
 
 ---
 
-## 🌐 Acesso via Web / Navegador (Novo!)
+## 🌐 Acesso Online & Hospedagem Gratuita na Nuvem
 
-O projeto na sua Área de Trabalho agora possui uma **versão Web completa e responsiva** em **HTML5 + Canvas 2D + Áudio sincronizado**, compatível com computadores e celulares (iPhone/Android).
+O projeto possui uma **versão Web completa e ultra-rápida** em **HTML5 + Canvas 2D + Áudio sincronizado**, hospedada gratuitamente com CDN global e HTTPS:
 
-- **No seu Computador**: [http://localhost:8088](http://localhost:8088)
-- **No Celular (mesma rede Wi-Fi)**: `http://192.168.3.190:8088`
-- **Link Online na Internet**: [https://little-hats-shop.loca.lt](https://little-hats-shop.loca.lt) *(IP de confirmação: `143.255.252.195`)*
-- **Arquivo direto**: [index.html](index.html) ou execute `start_web.bat`.
+- 🚀 **Link Oficial Online (GitHub Pages)**: [https://ocorvodev.github.io/LetterForYou/](https://ocorvodev.github.io/LetterForYou/)
+- 📦 **Repositório GitHub**: [https://github.com/OCorvoDev/LetterForYou](https://github.com/OCorvoDev/LetterForYou)
+- 💻 **No seu Computador (Local)**: [http://localhost:8088](http://localhost:8088) (via `start_web.bat`)
+- 📱 **Compatibilidade**: Funciona perfeitamente em celulares (Android / iPhone) e computadores desktop.
 
 ---
 
