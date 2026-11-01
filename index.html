@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Letter For You ♥</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      background-color: #07080c;
+      color: #e2e8f0;
+      font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #stage-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #07080c;
+    }
+    canvas {
+      display: block;
+      background: #07080c;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.95);
+      width: min(100vw, calc(100vh * (720 / 780)));
+      height: min(100vh, calc(100vw * (780 / 720)));
+      aspect-ratio: 720 / 780;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    /* Intro Overlay */
+    #start-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(22, 15, 34, 0.96) 0%, rgba(7, 8, 12, 0.98) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
+      padding: 24px;
+    }
+    .heart-icon {
+      font-size: 76px;
+      margin-bottom: 22px;
+      animation: pulse-heart 1.6s infinite ease-in-out;
+      filter: drop-shadow(0 0 28px rgba(255, 30, 80, 0.75));
+    }
+    @keyframes pulse-heart {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.18); }
+      60% { transform: scale(1.08); }
+      80% { transform: scale(1.16); }
+      100% { transform: scale(1); }
+    }
+    .intro-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-shadow: 0 0 24px rgba(255, 80, 140, 0.6);
+    }
+    .intro-subtitle {
+      font-size: 15px;
+      color: #cbd5e1;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      letter-spacing: 0.5px;
+    }
+    .start-btn {
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 16px 40px;
+      font-size: 17px;
+      font-weight: bold;
+      border-radius: 40px;
+      box-shadow: 0 6px 25px rgba(225, 29, 72, 0.55);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+    .start-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(225, 29, 72, 0.75);
+    }
+    .start-btn:active {
+      transform: translateY(1px);
+    }
+    /* Toolbar controls */
+    #ui-toolbar {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 50;
+      background: rgba(14, 17, 26, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 8px 14px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+      opacity: 0.9;
+      transition: opacity 0.3s;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #ui-toolbar:hover {
+      opacity: 1;
+    }
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-tool:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .btn-tool:active {
+      transform: scale(0.96);
+    }
+    .btn-tool.active {
+      background: rgba(225, 29, 72, 0.35);
+      border-color: #e11d48;
+      color: #fff;
+    }
+    .badge-theme {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 6px currentColor;
+    }
+    @media (max-width: 600px) {
+      .heart-icon { font-size: 58px; margin-bottom: 16px; }
+      .intro-title { font-size: 22px; }
+      .intro-subtitle { font-size: 13.5px; padding: 0 10px; }
+      .start-btn { padding: 14px 28px; font-size: 15px; }
+      #ui-toolbar {
+        bottom: 10px;
+        padding: 6px 8px;
+        gap: 5px;
+      }
+      .btn-tool {
+        padding: 5px 8px;
+        font-size: 10.5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="stage-wrapper">
+    <canvas id="stage" width="720" height="780"></canvas>
+
+    <!-- Overlay de Introdução -->
+    <div id="start-overlay">
+      <div class="heart-icon">💌</div>
+      <div class="intro-title">Letter For You ♥</div>
+      <div class="intro-subtitle">
+        Uma homenagem em arte computacional ASCII com música sincronizada, carta em chamas, rosa radiante e o Grand Finale com foto real.
+      </div>
+      <button class="start-btn" id="btn-start">
+        <span>Abrir Minha Carta</span> ♥
+      </button>
+    </div>
+
+    <!-- Barra de Controle Interativo -->
+    <div id="ui-toolbar" style="display: none;">
+      <button class="btn-tool" id="btn-restart" title="Reiniciar do Início (R / Espaço)">
+        <span>🔄</span> Início
+      </button>
+      <button class="btn-tool" id="btn-view-letter" title="Ver Carta (1)">
+        <span>✉️</span> Carta
+      </button>
+      <button class="btn-tool" id="btn-view-rose" title="Ver Rosa (2)">
+        <span>🌹</span> Rosa
+      </button>
+      <button class="btn-tool" id="btn-view-photo" title="Ver Foto Real (3)">
+        <span>💖</span> Foto
+      </button>
+      <button class="btn-tool" id="btn-theme-photo" title="Alternar Moldura da Foto (T)">
+        <span class="badge-theme" id="theme-indicator"></span>
+        <span id="theme-photo-name">Ouro</span>
+      </button>
+      <button class="btn-tool" id="btn-theme-rose" title="Alternar Cor da Rosa (C)">
+        <span>🎨</span> Rosa
+      </button>
+      <button class="btn-tool" id="btn-audio" title="Silenciar / Ativar Som (M)">
+        <span id="audio-icon">🔊</span>
+      </button>
+      <button class="btn-tool" id="btn-fullscreen" title="Tela Cheia (F)">
+        <span>⛶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Assets embutidos em Base64 para funcionamento imediato sem servidor -->
+  <script src="audio_data.js"></script>
+  <script src="photo_data.js"></script>
+
+  <script>
+    const V_WIDTH = 720;
+    const V_HEIGHT = 780;
+    const FONT_SIZE = 16;
+    const CW = 9.2;
+    const CH = 16.0;
+    const COLS = Math.floor(V_WIDTH / CW);
+    const ROWS = Math.floor(V_HEIGHT / CH);
+    const D2R = Math.PI / 180.0;
+
+    // Linha do tempo oficial
+    const T_IGNITE = 2.0;
+    const T_FIRE_END = 5.8;
+    const T_ROSE_START = 4.2;
+    const T_ROSE_FULL = 7.0;
+    const T_PORTRAIT_START = 8.8;
+    const T_PORTRAIT_FULL = 11.2;
+
+    const SENDER_NAME = "Seu Amor";
+    const RECIPIENT_NAME = "A Pessoa Mais Especial Deste Mundo";
+    const LOVE_MESSAGE_1 = "Mesmo que as palavras se queimem com o tempo, o meu";
+    const LOVE_MESSAGE_2 = "sentimento por você floresce como a mais bela rosa.";
+    const PORTRAIT_CAPTION = "♥  Para Sempre a Razão do Meu Sorriso  ♥";
+    const PORTRAIT_SUBTITLE = "♥  Com todo o meu amor e carinho  ♥";
+
+    const FIRE_PALETTE = [
+      [255, 255, 245], // 0.00: Núcleo incandescente
+      [255, 235, 60],  // 0.20: Amarelo vivo
+      [255, 130, 20],  // 0.45: Laranja chama
+      [225, 40, 15],   // 0.70: Vermelho brasa viva
+      [90, 25, 20],    // 0.88: Brasa escura / Carvão
+      [35, 22, 28]     // 1.00: Fuligem / cinza apagada
+    ];
+
+    const ROSE_THEMES = [
+      {
+        name: "Carmesim",
+        petal_hi: [255, 65, 105],
+        petal: [225, 25, 60],
+        petal_edge: [165, 15, 45],
+        stem: [40, 185, 75],
+        leaf: [50, 225, 105],
+        leaf_dark: [30, 150, 65],
+        flare_core: [210, 240, 255],
+        flare_beam: [50, 150, 255],
+        flare_edge: [20, 60, 180]
+      },
+      {
+        name: "Dourado",
+        petal_hi: [255, 230, 120],
+        petal: [245, 180, 40],
+        petal_edge: [190, 120, 20],
+        stem: [160, 180, 60],
+        leaf: [190, 215, 80],
+        leaf_dark: [120, 140, 40],
+        flare_core: [255, 250, 210],
+        flare_beam: [255, 200, 70],
+        flare_edge: [180, 110, 20]
+      },
+      {
+        name: "Ciano Neon",
+        petal_hi: [140, 255, 255],
+        petal: [0, 215, 235],
+        petal_edge: [0, 145, 185],
+        stem: [120, 70, 220],
+        leaf: [160, 110, 255],
+        leaf_dark: [90, 45, 175],
+        flare_core: [230, 245, 255],
+        flare_beam: [0, 190, 255],
+        flare_edge: [0, 80, 190]
+      },
+      {
+        name: "Ametista",
+        petal_hi: [240, 160, 255],
+        petal: [195, 70, 235],
+        petal_edge: [135, 30, 175],
+        stem: [45, 175, 120],
+        leaf: [65, 220, 155],
+        leaf_dark: [30, 130, 85],
+        flare_core: [250, 220, 255],
+        flare_beam: [190, 100, 255],
+        flare_edge: [110, 40, 190]
+      }
+    ];
+
+    const PHOTO_THEMES = [
+      {
+        name: "Ouro",
+        indicator: "#f59e0b",
+        halo: [255, 140, 60],
+        ring_core: [255, 235, 160],
+        ring_mid: [245, 160, 40],
+        ring_edge: [180, 40, 70],
+        title_color: [255, 215, 160],
+        sub_color: [255, 180, 140]
+      },
+      {
+        name: "Rubi",
+        indicator: "#e11d48",
+        halo: [255, 45, 95],
+        ring_core: [255, 200, 220],
+        ring_mid: [255, 55, 105],
+        ring_edge: [160, 20, 65],
+        title_color: [255, 190, 210],
+        sub_color: [255, 140, 170]
+      },
+      {
+        name: "Ciano",
+        indicator: "#06b6d4",
+        halo: [0, 180, 255],
+        ring_core: [220, 250, 255],
+        ring_mid: [0, 210, 255],
+        ring_edge: [20, 80, 200],
+        title_color: [190, 240, 255],
+        sub_color: [140, 200, 255]
+      }
+    ];
+
+    function padRight(str, len) {
+      while (str.length < len) str += ' ';
+      return str.substring(0, len);
+    }
+
+    const ENVELOPE_RAW = [
+      "  /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\  ",
+      " // \\                                                     / \\\\ ",
+      "//   \\                                                   /   \\\\",
+      "||    \\                                                 /    ||",
+      "||     \\                      .:::. .:::.              /     ||",
+      "||      \\                    :::::::::::::            /      ||",
+      "||       \\                   ':::::::::::'           /       ||",
+      "||        \\                    ':::::::'            /        ||",
+      "||         \\                     ':::'             /         ||",
+      "||          \\_____________________________________/          ||",
+      "||                                                           ||",
+      "||   De: " + padRight(SENDER_NAME, 48) + "♥   ||",
+      "||   Para: " + padRight(RECIPIENT_NAME, 50) + "||",
+      "||   -----------------------------------------------------   ||",
+      "||   " + padRight(LOVE_MESSAGE_1, 53) + "   ||",
+      "||   " + padRight(LOVE_MESSAGE_2, 53) + "   ||",
+      "||   -----------------------------------------------------   ||",
+      "||                                                           ||",
+      "||   Com todo o meu amor e carinho sempre...                 ||",
+      "||                                                           ||",
+      " \\\\_________________________________________________________// ",
+      "  \\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/  "
+    ];
+
+    const ROSE_RAW = [
+      ["                 ####888888888####                  ", "petal_edge"],
+      ["             888 \\  - %%%%%%%% 88888888 %%%         ", "petal"],
+      ["          888% %88% %8888888888888888888 %%% %888   ", "petal"],
+      ["        8888 888% 8888 888888 88 8888 88888 8888    ", "petal_hi"],
+      ["       888 %88 888 888 8888888 8888 888888 88888    ", "petal_hi"],
+      ["       %888 888 888 888 8888888 8888 8888 888888    ", "petal_hi"],
+      ["       %%8888 8888 8888 8888888 8888 8888 888888    ", "petal"],
+      ["       %%%88888 8888 88888888888 88888 888888888    ", "petal"],
+      ["       %8888888888888888888888888888888888888888    ", "petal"],
+      ["        %88888888888888888888888888888888888888     ", "petal"],
+      ["         %888888888888888888888888888888888888      ", "petal"],
+      ["           %888888888888888888888888888888888       ", "petal"],
+      ["             %88888888888888888888888888888         ", "petal"],
+      ["                %88888888888888888888888            ", "petal"],
+      ["                    %88888888888888                 ", "petal_edge"],
+      ["                %#%   .   ||   .   %#%              ", "leaf"],
+      ["             \\ %%%%%% /   ||   \\ %%%%%% /           ", "leaf"],
+      ["            \\\\ %%%%%%%    ||    %%%%%%% //          ", "leaf"],
+      ["             \\ %%%%%%    ||    %%%%%% //           ", "leaf"],
+      ["               %#% %%%    ||    %%% %#%             ", "leaf"],
+      ["                   %#%    ||    %#%                 ", "leaf"],
+      ["                          ||                        ", "stem"],
+      ["                         //                         ", "stem"],
+      ["                 \\ %%%%%%//                         ", "leaf"],
+      ["                \\\\ %%%%%%%||                        ", "leaf"],
+      ["                 \\ %%%%%%||                        ", "leaf"],
+      ["                   %%%%%% ||                        ", "leaf"],
+      ["                          || %%%%%% /               ", "leaf"],
+      ["                          ||%%%%%%% //              ", "leaf"],
+      ["                         // %%%%%% //               ", "leaf"],
+      ["                        //    %#%                   ", "leaf"],
+      ["                        ||                          ", "stem"],
+      ["                        ||                          ", "stem"],
+      ["                       //                           ", "stem"],
+      ["                      //                            ", "stem"],
+      ["                      ||                            ", "stem"]
+    ];
+
+    function lerpColor(c1, c2, t) {
+      t = Math.max(0, Math.min(1, t));
+      return [
+        Math.round(c1[0] + (c2[0] - c1[0]) * t),
+        Math.round(c1[1] + (c2[1] - c1[1]) * t),
+        Math.round(c1[2] + (c2[2] - c1[2]) * t)
+      ];
+    }
+
+    function getFireColor(progress) {
+      const p = Math.max(0, Math.min(0.999, progress)) * (FIRE_PALETTE.length - 1);
+      const idx = Math.floor(p);
+      const frac = p - idx;
+      return lerpColor(FIRE_PALETTE[idx], FIRE_PALETTE[idx + 1], frac);
+    }
+
+    class LetterApp {
+      constructor() {
+        this.canvas = document.getElementById('stage');
+        this.ctx = this.canvas.getContext('2d');
+        this.audio = null;
+        this.isMuted = false;
+
+        this.roseThemeIdx = 0;
+        this.roseTheme = ROSE_THEMES[this.roseThemeIdx];
+
+        this.photoThemeIdx = 0;
+        this.photoTheme = PHOTO_THEMES[this.photoThemeIdx];
+
+        this.cw = CW;
+        this.ch = CH;
+        this.cols = COLS;
+        this.rows = ROWS;
+
+        this.animTime = 0.0;
+        this.running = false;
+        this.forceView = null; // null (auto), 'letter', 'rose', 'photo'
+        this.burstDone = false;
+        this.photoBurstDone = false;
+        this.sparks = [];
+        this.smoke = [];
+
+        // Imagem da foto real
+        this.photoImg = new Image();
+        this.photoLoaded = false;
+        this.initPhoto();
+
+        this.setupDisplay();
+        this.initGrid();
+        this.initAudio();
+        this.bindEvents();
+
+        window.addEventListener('resize', () => this.setupDisplay());
+      }
+
+      initPhoto() {
+        this.photoImg.onload = () => {
+          this.photoLoaded = true;
+        };
+        if (window.EMBEDDED_PHOTO_B64) {
+          this.photoImg.src = window.EMBEDDED_PHOTO_B64;
+        } else {
+          this.photoImg.src = 'photo_rounded.png';
+        }
+      }
+
+      setupDisplay() {
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = V_WIDTH * dpr;
+        this.canvas.height = V_HEIGHT * dpr;
+        this.ctx.resetTransform();
+        this.ctx.scale(dpr, dpr);
+        this.ctx.font = `bold ${FONT_SIZE}px Consolas, "Courier New", monospace`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+      }
+
+      initAudio() {
+        this.audio = new Audio();
+        this.audio.loop = true;
+        if (window.EMBEDDED_AUDIO_B64) {
+          this.audio.src = window.EMBEDDED_AUDIO_B64;
+        } else {
+          this.audio.src = 'audio.wav';
+        }
+        this.audio.volume = 0.85;
+      }
+
+      initGrid() {
+        this.envStartRow = 12;
+        this.envStartCol = Math.floor((this.cols - ENVELOPE_RAW[0].length) / 2);
+        this.envelopeCells = [];
+
+        for (let rIdx = 0; rIdx < ENVELOPE_RAW.length; rIdx++) {
+          const line = ENVELOPE_RAW[rIdx];
+          const r = this.envStartRow + rIdx;
+          for (let cIdx = 0; cIdx < line.length; cIdx++) {
+            const ch = line[cIdx];
+            if (ch === ' ') continue;
+            const c = this.envStartCol + cIdx;
+            let color = [175, 160, 135];
+            let ctype = 'paper';
+
+            if (ch === '♥') {
+              color = [255, 35, 95];
+              ctype = 'heart';
+            } else if (['.', ':', "'"].includes(ch) && rIdx < 10 && cIdx > 20 && cIdx < 45) {
+              color = [245, 50, 110];
+              ctype = 'seal';
+            } else if (rIdx === 11 || rIdx === 12) {
+              color = [255, 230, 190];
+              ctype = 'text_hi';
+            } else if ([14, 15, 18].includes(rIdx)) {
+              color = [225, 205, 175];
+              ctype = 'text';
+            } else if (['/', '\\', '_', '~', '|', '-'].includes(ch)) {
+              color = [195, 180, 155];
+              ctype = 'border';
+            }
+            this.envelopeCells.push({ r, c, ch, color, ctype });
+          }
+        }
+
+        this.igRow = this.envStartRow + ENVELOPE_RAW.length - 3;
+        this.igCol = this.envStartCol + ENVELOPE_RAW[0].length - 8;
+
+        this.envBurnTimes = [];
+        for (const cell of this.envelopeCells) {
+          const dr = (this.igRow - cell.r) * 1.0;
+          const dc = (this.igCol - cell.c) * 0.8;
+          const dist = Math.sqrt(dr * dr + dc * dc);
+          const jitter = Math.sin(cell.r * 0.8 + cell.c * 0.5) * 2.8 + Math.cos(cell.r * 1.4 - cell.c * 0.9) * 2.0;
+          const totDist = Math.max(0.0, dist + jitter);
+          const maxD = 68.0;
+          const tOffset = (totDist / maxD) * (T_FIRE_END - T_IGNITE);
+          this.envBurnTimes.push(T_IGNITE + tOffset);
+        }
+        this.burnDuration = 0.65;
+
+        this.roseStartRow = 6;
+        this.roseStartCol = Math.floor((this.cols - ROSE_RAW[0][0].length) / 2);
+        this.roseCells = [];
+        this.rosePositions = new Set();
+
+        for (let rIdx = 0; rIdx < ROSE_RAW.length; rIdx++) {
+          const [line, ptype] = ROSE_RAW[rIdx];
+          const r = this.roseStartRow + rIdx;
+          for (let cIdx = 0; cIdx < line.length; cIdx++) {
+            const ch = line[cIdx];
+            if (ch === ' ') continue;
+            const c = this.roseStartCol + cIdx;
+            this.roseCells.push({ r, c, ch, ptype, rIdx, cIdx });
+            this.rosePositions.add(`${r},${c}`);
+          }
+        }
+
+        // Parâmetros da Foto Real
+        this.photoCx = V_WIDTH / 2;
+        this.photoCy = V_HEIGHT / 2 - 20;
+        this.photoRadius = 200;
+      }
+
+      start() {
+        document.getElementById('start-overlay').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('start-overlay').style.display = 'none';
+        }, 800);
+        document.getElementById('ui-toolbar').style.display = 'flex';
+
+        this.running = true;
+        this.resetAnimation();
+
+        let lastTime = performance.now();
+        const loop = (now) => {
+          const dt = Math.min((now - lastTime) / 1000.0, 0.05);
+          lastTime = now;
+          if (this.running) {
+            if (this.forceView === null) {
+              this.animTime += dt;
+            }
+            this.updateParticles(dt);
+            this.render(dt);
+          }
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+
+      resetAnimation() {
+        this.animTime = 0.0;
+        this.burstDone = false;
+        this.photoBurstDone = false;
+        this.sparks = [];
+        this.smoke = [];
+        this.forceView = null;
+        this.clearActiveViewButtons();
+        if (this.audio && !this.isMuted) {
+          this.audio.currentTime = 0;
+          this.audio.play().catch(() => {});
+        }
+      }
+
+      setForceView(view) {
+        if (this.forceView === view) {
+          this.forceView = null;
+          this.clearActiveViewButtons();
+        } else {
+          this.forceView = view;
+          this.clearActiveViewButtons();
+          const btn = document.getElementById(`btn-view-${view}`);
+          if (btn) btn.classList.add('active');
+        }
+      }
+
+      clearActiveViewButtons() {
+        ['letter', 'rose', 'photo'].forEach(v => {
+          const btn = document.getElementById(`btn-view-${v}`);
+          if (btn) btn.classList.remove('active');
+        });
+      }
+
+      switchRoseTheme() {
+        this.roseThemeIdx = (this.roseThemeIdx + 1) % ROSE_THEMES.length;
+        this.roseTheme = ROSE_THEMES[this.roseThemeIdx];
+      }
+
+      switchPhotoTheme() {
+        this.photoThemeIdx = (this.photoThemeIdx + 1) % PHOTO_THEMES.length;
+        this.photoTheme = PHOTO_THEMES[this.photoThemeIdx];
+        document.getElementById('theme-photo-name').innerText = this.photoTheme.name;
+        document.getElementById('theme-indicator').style.background = this.photoTheme.indicator;
+      }
+
+      toggleAudio() {
+        this.isMuted = !this.isMuted;
+        if (this.audio) {
+          this.audio.volume = this.isMuted ? 0 : 0.85;
+        }
+        document.getElementById('audio-icon').innerText = this.isMuted ? '🔇' : '🔊';
+      }
+
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      }
+
+      bindEvents() {
+        document.getElementById('btn-start').addEventListener('click', () => this.start());
+        document.getElementById('btn-restart').addEventListener('click', () => this.resetAnimation());
+        document.getElementById('btn-view-letter').addEventListener('click', () => this.setForceView('letter'));
+        document.getElementById('btn-view-rose').addEventListener('click', () => this.setForceView('rose'));
+        document.getElementById('btn-view-photo').addEventListener('click', () => this.setForceView('photo'));
+        document.getElementById('btn-theme-photo').addEventListener('click', () => this.switchPhotoTheme());
+        document.getElementById('btn-theme-rose').addEventListener('click', () => this.switchRoseTheme());
+        document.getElementById('btn-audio').addEventListener('click', () => this.toggleAudio());
+        document.getElementById('btn-fullscreen').addEventListener('click', () => this.toggleFullscreen());
+
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.key.toLowerCase() === 'r') {
+            this.resetAnimation();
+          } else if (e.key === '1') {
+            this.setForceView('letter');
+          } else if (e.key === '2') {
+            this.setForceView('rose');
+          } else if (e.key === '3') {
+            this.setForceView('photo');
+          } else if (e.key.toLowerCase() === 'v' || e.key === 'Tab') {
+            e.preventDefault();
+            const views = [null, 'letter', 'rose', 'photo'];
+            const curIdx = views.indexOf(this.forceView);
+            this.setForceView(views[(curIdx + 1) % views.length]);
+          } else if (e.key.toLowerCase() === 't') {
+            this.switchPhotoTheme();
+          } else if (e.key.toLowerCase() === 'c') {
+            this.switchRoseTheme();
+          } else if (e.key.toLowerCase() === 'm') {
+            this.toggleAudio();
+          } else if (e.key.toLowerCase() === 'f') {
+            this.toggleFullscreen();
+          }
+        });
+      }
+
+      updateParticles(dt) {
+        const liveSparks = [];
+        for (const s of this.sparks) {
+          s.age += dt;
+          if (s.age < s.maxAge) {
+            s.x += s.vx * dt;
+            s.y += s.vy * dt;
+            s.vy += s.grav * dt;
+            s.vx *= 0.96;
+            s.vy *= 0.98;
+            liveSparks.push(s);
+          }
+        }
+        this.sparks = liveSparks.slice(-1600);
+
+        const liveSmoke = [];
+        for (const sm of this.smoke) {
+          sm.age += dt;
+          if (sm.age < sm.maxAge) {
+            sm.x += sm.vx * dt;
+            sm.y += sm.vy * dt;
+            sm.vx += Math.sin(sm.age * 4.0) * 8.0 * dt;
+            liveSmoke.push(sm);
+          }
+        }
+        this.smoke = liveSmoke.slice(-300);
+      }
+
+      render(dt) {
+        const ctx = this.ctx;
+        let t = this.animTime;
+
+        if (this.forceView === 'letter') t = 1.0;
+        else if (this.forceView === 'rose') t = 7.5;
+        else if (this.forceView === 'photo') t = 12.0;
+
+        // Fundo cósmico
+        ctx.fillStyle = '#07080c';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        // 1. Poeira estelar / Estrelas cintilantes ao fundo
+        for (let i = 0; i < 45; i++) {
+          const sr = Math.floor((Math.sin(i * 17.3 + t * 0.15) * 0.5 + 0.5) * this.rows);
+          const sc = Math.floor((Math.cos(i * 31.7 + t * 0.12) * 0.5 + 0.5) * this.cols);
+          const twinkle = Math.sin(t * 2.8 + i) * 0.5 + 0.5;
+          if (twinkle > 0.35) {
+            const sChar = twinkle < 0.75 ? '.' : '*';
+            const sCol = lerpColor([18, 22, 36], [110, 150, 210], twinkle);
+            ctx.fillStyle = `rgb(${sCol[0]},${sCol[1]},${sCol[2]})`;
+            ctx.fillText(sChar, sc * this.cw + this.cw / 2, sr * this.ch + this.ch / 2);
+          }
+        }
+
+        // 2. Raios Anamórficos Horizontais
+        if (t > T_ROSE_START) {
+          const inPortrait = (t >= T_PORTRAIT_START || this.forceView === 'photo');
+          const roseProgress = Math.min(1.0, Math.max(0.0, (t - T_ROSE_START) / (T_ROSE_FULL - T_ROSE_START)));
+          let flareAlpha = Math.min(1.0, (roseProgress - 0.40) / 0.60);
+          if (inPortrait) {
+            flareAlpha = 0.55 + 0.25 * Math.sin(t * 2.0);
+          }
+
+          if (flareAlpha > 0.05) {
+            const beamRows = [
+              this.roseStartRow + 3,
+              this.roseStartRow + 5,
+              this.roseStartRow + 7,
+              this.roseStartRow + 9
+            ];
+            const centerC = this.roseStartCol + 25;
+
+            for (let bIdx = 0; bIdx < beamRows.length; bIdx++) {
+              const br = beamRows[bIdx];
+              const wobble = Math.sin(t * 3.8 + bIdx * 1.4) * 0.2 + 0.8;
+              for (let bc = 0; bc < this.cols; bc++) {
+                if (!this.rosePositions.has(`${br},${bc}`)) {
+                  const dc = Math.abs(bc - centerC);
+                  const intensity = Math.exp(-dc * 0.055) * flareAlpha * wobble;
+                  if (intensity > 0.08) {
+                    let bChar = '.';
+                    let bCol = [12, 30, 90];
+                    if (intensity > 0.45) {
+                      bChar = '=';
+                      bCol = lerpColor(this.roseTheme.flare_beam, this.roseTheme.flare_core, (intensity - 0.45) / 0.55);
+                    } else if (intensity > 0.2) {
+                      bChar = '-';
+                      bCol = lerpColor(this.roseTheme.flare_edge, this.roseTheme.flare_beam, (intensity - 0.2) / 0.25);
+                    } else {
+                      bChar = '.';
+                      bCol = lerpColor([12, 30, 90], this.roseTheme.flare_edge, intensity / 0.2);
+                    }
+                    ctx.fillStyle = `rgb(${bCol[0]},${bCol[1]},${bCol[2]})`;
+                    ctx.fillText(bChar, bc * this.cw + this.cw / 2, br * this.ch + this.ch / 2);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // 3. Renderização da Rosa (com fade suave quando a Foto Real emerge)
+        let roseFade = 1.0;
+        if (t >= T_PORTRAIT_START && this.forceView !== 'rose') {
+          roseFade = Math.max(0.0, 1.0 - (t - T_PORTRAIT_START) / 1.4);
+        }
+
+        if (t > T_ROSE_START && roseFade > 0.01 && this.forceView !== 'letter') {
+          const pulse = 1.0 + 0.08 * Math.sin(t * 3.2);
+
+          for (const cell of this.roseCells) {
+            const distCenter = Math.sqrt((cell.rIdx - 10) ** 2 + (cell.cIdx - 25) ** 2);
+            const cellRevT = T_ROSE_START + (distCenter / 34.0) * (T_ROSE_FULL - T_ROSE_START);
+
+            if (t >= cellRevT) {
+              const localP = Math.min(1.0, (t - cellRevT) / 1.1);
+              let baseCol = [200, 200, 200];
+              if (cell.ptype === 'petal_hi') baseCol = this.roseTheme.petal_hi;
+              else if (cell.ptype === 'petal') baseCol = this.roseTheme.petal;
+              else if (cell.ptype === 'petal_edge') baseCol = this.roseTheme.petal_edge;
+              else if (cell.ptype === 'stem') baseCol = this.roseTheme.stem;
+              else if (cell.ptype === 'leaf') {
+                baseCol = ['\\', '/'].includes(cell.ch) ? this.roseTheme.leaf_dark : this.roseTheme.leaf;
+              }
+
+              let col = [0, 0, 0];
+              if (localP < 0.4) {
+                const emberP = localP / 0.4;
+                col = lerpColor([255, 235, 110], [255, 95, 30], emberP);
+              } else {
+                const coolP = (localP - 0.4) / 0.6;
+                col = lerpColor([255, 95, 30], baseCol, coolP);
+              }
+
+              if (cell.ptype.includes('petal')) {
+                col = [
+                  Math.min(255, Math.round(col[0] * pulse)),
+                  Math.min(255, Math.round(col[1] * pulse)),
+                  Math.min(255, Math.round(col[2] * pulse))
+                ];
+              }
+
+              if (roseFade < 1.0) {
+                col = [
+                  Math.round(col[0] * roseFade),
+                  Math.round(col[1] * roseFade),
+                  Math.round(col[2] * roseFade)
+                ];
+              }
+
+              ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+              ctx.fillText(cell.ch, cell.c * this.cw + this.cw / 2, cell.r * this.ch + this.ch / 2);
+            }
+          }
+        }
+
+        // 4. Renderização do Envelope & Combustão
+        if (this.forceView !== 'photo' && this.forceView !== 'rose') {
+          const activeFront = [];
+          for (let idx = 0; idx < this.envelopeCells.length; idx++) {
+            const cell = this.envelopeCells[idx];
+            const bT = this.envBurnTimes[idx];
+
+            if (t < bT) {
+              const flicker = 1.0 + 0.04 * Math.sin(t * 5.0 + cell.r + cell.c);
+              const col = [
+                Math.min(255, Math.round(cell.color[0] * flicker)),
+                Math.min(255, Math.round(cell.color[1] * flicker)),
+                Math.min(255, Math.round(cell.color[2] * flicker))
+              ];
+              ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+              ctx.fillText(cell.ch, cell.c * this.cw + this.cw / 2, cell.r * this.ch + this.ch / 2);
+            } else if (t < bT + this.burnDuration) {
+              const burnP = (t - bT) / this.burnDuration;
+              const fCol = getFireColor(burnP);
+              const fChars = ['#', '*', '&', '%', '^', '!', '+'];
+              const fCh = fChars[Math.floor(cell.r * 5 + cell.c * 11 + t * 30) % fChars.length];
+              ctx.fillStyle = `rgb(${fCol[0]},${fCol[1]},${fCol[2]})`;
+              ctx.fillText(fCh, cell.c * this.cw + this.cw / 2, cell.r * this.ch + this.ch / 2);
+              activeFront.push([cell.c * this.cw + this.cw / 2, cell.r * this.ch + this.ch / 2]);
+            }
+          }
+
+          // Spawners de Ignição inicial
+          if (t >= T_IGNITE && !this.burstDone) {
+            this.burstDone = true;
+            const igPx = this.igCol * this.cw;
+            const igPy = this.igRow * this.ch;
+            for (let i = 0; i < 160; i++) {
+              const angle = (Math.random() * -160 - 10) * D2R;
+              const speed = 120 + Math.random() * 460;
+              this.sparks.push({
+                x: igPx,
+                y: igPy,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                age: 0.0,
+                maxAge: 0.7 + Math.random() * 1.1,
+                grav: 150 + Math.random() * 250
+              });
+            }
+          }
+
+          if (activeFront.length > 0 && t < T_FIRE_END) {
+            const nSparks = Math.floor(140 * dt * Math.min(1.0, activeFront.length / 45.0) + Math.random());
+            for (let i = 0; i < nSparks; i++) {
+              const pt = activeFront[Math.floor(Math.random() * activeFront.length)];
+              const angle = (Math.random() * -90 - 45) * D2R;
+              const speed = 80 + Math.random() * 340;
+              this.sparks.push({
+                x: pt[0],
+                y: pt[1],
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                age: 0.0,
+                maxAge: 0.6 + Math.random() * 1.3,
+                grav: 180 + Math.random() * 300
+              });
+            }
+
+            if (Math.random() < 24.0 * dt) {
+              const pt = activeFront[Math.floor(Math.random() * activeFront.length)];
+              this.smoke.push({
+                x: pt[0],
+                y: pt[1] - 8,
+                vx: (Math.random() - 0.5) * 36,
+                vy: -(30 + Math.random() * 45),
+                age: 0.0,
+                maxAge: 1.8 + Math.random() * 1.4
+              });
+            }
+          }
+        }
+
+        // 5. Renderização da FOTO REAL ARREDONDADA (Grand Finale)
+        if ((t >= T_PORTRAIT_START || this.forceView === 'photo') && this.forceView !== 'rose' && this.forceView !== 'letter') {
+          // Burst radial estelar
+          if (!this.photoBurstDone) {
+            this.photoBurstDone = true;
+            for (let i = 0; i < 140; i++) {
+              const angle = Math.random() * 2 * Math.PI;
+              const speed = 90 + Math.random() * 330;
+              this.sparks.push({
+                x: this.photoCx,
+                y: this.photoCy,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                age: 0.0,
+                maxAge: 1.2 + Math.random() * 1.6,
+                grav: 25.0
+              });
+            }
+          }
+
+          const prog = this.forceView === 'photo' ? 1.0 : Math.min(1.0, Math.max(0.0, (t - T_PORTRAIT_START) / 1.5));
+          const alpha = prog;
+          const pulse = 1.0 + 0.018 * Math.sin(t * 2.5);
+          const curRadius = this.photoRadius * pulse;
+          const curSize = curRadius * 2;
+
+          // 5.1 Halo luminoso difuso
+          const haloColor = this.photoTheme.halo;
+          const haloGrad = ctx.createRadialGradient(this.photoCx, this.photoCy, curRadius * 0.7, this.photoCx, this.photoCy, curRadius + 50);
+          haloGrad.addColorStop(0, `rgba(${haloColor[0]}, ${haloColor[1]}, ${haloColor[2]}, ${alpha * 0.45})`);
+          haloGrad.addColorStop(0.6, `rgba(${haloColor[0]}, ${haloColor[1]}, ${haloColor[2]}, ${alpha * 0.15})`);
+          haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.fillStyle = haloGrad;
+          ctx.beginPath();
+          ctx.arc(this.photoCx, this.photoCy, curRadius + 55, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 5.2 Renderização da Foto com Corte Circular
+          if (this.photoLoaded) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(this.photoCx, this.photoCy, curRadius, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(this.photoImg, this.photoCx - curRadius, this.photoCy - curRadius, curSize, curSize);
+            ctx.restore();
+          }
+
+          // 5.3 Anéis de Moldura Luminosa Concêntricos
+          const ringCore = this.photoTheme.ring_core;
+          const ringMid = this.photoTheme.ring_mid;
+          const ringEdge = this.photoTheme.ring_edge;
+
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          // Anel interno de luz
+          ctx.beginPath();
+          ctx.arc(this.photoCx, this.photoCy, curRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgb(${ringCore[0]}, ${ringCore[1]}, ${ringCore[2]})`;
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Anel intermediário
+          ctx.beginPath();
+          ctx.arc(this.photoCx, this.photoCy, curRadius + 2, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgb(${ringMid[0]}, ${ringMid[1]}, ${ringMid[2]})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Anel externo sutil
+          ctx.beginPath();
+          ctx.arc(this.photoCx, this.photoCy, curRadius + 4, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgb(${ringEdge[0]}, ${ringEdge[1]}, ${ringEdge[2]})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Anel de brilho pulsante externo
+          const outerPulseR = curRadius + 7 + Math.sin(t * 3.5) * 3;
+          const outerAlpha = (0.35 + 0.2 * Math.sin(t * 3.5)) * alpha;
+          ctx.beginPath();
+          ctx.arc(this.photoCx, this.photoCy, outerPulseR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${ringMid[0]}, ${ringMid[1]}, ${ringMid[2]}, ${outerAlpha})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.restore();
+
+          // 5.4 Legendas Românticas
+          if (t > T_PORTRAIT_START + 0.4 || this.forceView === 'photo') {
+            const capAlpha = this.forceView === 'photo' ? 1.0 : Math.min(1.0, (t - (T_PORTRAIT_START + 0.4)) / 1.0);
+            ctx.save();
+            ctx.globalAlpha = capAlpha;
+
+            // Título superior
+            ctx.font = 'bold 16px Consolas, "Courier New", monospace';
+            const tc = this.photoTheme.title_color;
+            ctx.fillStyle = `rgb(${tc[0]}, ${tc[1]}, ${tc[2]})`;
+            ctx.shadowColor = `rgba(${tc[0]}, ${tc[1]}, ${tc[2]}, 0.8)`;
+            ctx.shadowBlur = 14;
+            ctx.fillText(PORTRAIT_CAPTION, this.photoCx, this.photoCy - curRadius - 38);
+
+            // Subtítulo inferior
+            ctx.font = '14px Consolas, "Courier New", monospace';
+            const sc = this.photoTheme.sub_color;
+            ctx.fillStyle = `rgb(${sc[0]}, ${sc[1]}, ${sc[2]})`;
+            ctx.shadowColor = `rgba(${sc[0]}, ${sc[1]}, ${sc[2]}, 0.6)`;
+            ctx.shadowBlur = 10;
+            ctx.fillText(PORTRAIT_SUBTITLE, this.photoCx, this.photoCy + curRadius + 38);
+
+            ctx.restore();
+          }
+
+          // Fagulhas mágicas orbitando ao redor da foto
+          if (Math.random() < 30.0 * dt) {
+            const angle = Math.random() * 2 * Math.PI;
+            const rad = curRadius + 15 + Math.random() * 60;
+            this.sparks.push({
+              x: this.photoCx + Math.cos(angle) * rad,
+              y: this.photoCy + Math.sin(angle) * rad * 0.9,
+              vx: (Math.random() - 0.5) * 25,
+              vy: -(15 + Math.random() * 35),
+              age: 0.0,
+              maxAge: 1.2 + Math.random() * 1.5,
+              grav: -10.0
+            });
+          }
+        }
+
+        // 6. Desenho da Fumaça
+        for (const sm of this.smoke) {
+          const smLife = sm.age / sm.maxAge;
+          const smAlpha = Math.sin(smLife * Math.PI);
+          if (smAlpha > 0.05) {
+            const smCol = lerpColor([15, 16, 22], [90, 75, 85], smAlpha * 0.4);
+            ctx.fillStyle = `rgb(${smCol[0]},${smCol[1]},${smCol[2]})`;
+            ctx.fillText(smLife < 0.5 ? 'o' : '.', sm.x, sm.y);
+          }
+        }
+
+        // 7. Desenho das Fagulhas
+        const sparkChars = ['*', '.', '`', '+'];
+        for (const s of this.sparks) {
+          const spLife = s.age / s.maxAge;
+          if (spLife < 1.0) {
+            const spCol = getFireColor(spLife * 0.8);
+            const spChar = spLife < 0.6 ? sparkChars[Math.floor(Math.random() * sparkChars.length)] : '.';
+            ctx.fillStyle = `rgb(${spCol[0]},${spCol[1]},${spCol[2]})`;
+            ctx.fillText(spChar, s.x, s.y);
+          }
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      new LetterApp();
+    });
+  </script>
+</body>
+</html>
